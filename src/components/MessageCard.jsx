@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material'
 import React from 'react'
 
-const MessageCard = ({ text, date, direction}) => {
+const MessageCard = ({ text, date, direction, dirColor}) => {
   return (
     <Box 
     display={'flex'}
@@ -10,14 +10,14 @@ const MessageCard = ({ text, date, direction}) => {
         <Box>
             <Typography 
             variant='subtitle2'
-            backgroundColor='white'
+            backgroundColor={dirColor}
             padding={'5px 10px'} 
             border={'1px solid gray'}
             borderRadius={'10px'}
             >{text}</Typography>
             <Typography 
             variant='caption'
-            >{date}</Typography>
+            >{new Date(date).toLocaleTimeString()}</Typography>
         </Box>
     </Box>
   )

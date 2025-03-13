@@ -1,41 +1,28 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Box, Stack, Typography, Button, TextField, Card, Alert, CircularProgress} from '@mui/material'
 import { useMutation } from '@apollo/client'
-import { LOGIN_USER, SIGNUP_USER } from '../graphql/mutations'
+import { SIGNUP_USER } from '../graphql/mutations'
 
-const AuthScreen = ({setLoggedIn}) => {
+const AuthScreen = () => {
     const [showLogin, setShowLogin] = useState(true)
     const [formData, setFormData] = useState({})
     const [isSubmitting, setIsSubmitting] = useState(false)
-    const [isErr, setIsErr] = useState(false)
-    const [isErrMsg, setIsErrMsg] = useState('')
     const [showSuccessMessage, setShowSuccessMessage] = useState(false)
     const [successName, setSuccessName] = useState("")
     const authForm = useRef(null)
     
     const [signUpUser, {data:signUpData, error:e1}] = useMutation(SIGNUP_USER, {
         onCompleted: (data) => {
+            console.log("Mutation completed successfully:", data)
             setIsSubmitting(false)
-            setSuccessName(data.signUpUser.name)
-            setShowSuccessMessage(true)
+            if (data && data.signUpUser && data.signUpUser.name) {
+                setSuccessName(data.signUpUser.name)
+                setShowSuccessMessage(true)
+            }
         },
         onError: (error) => {
+            console.error("Mutation error:", error)
             setIsSubmitting(false)
-            setIsErr(true)
-            setIsErrMsg(error.message)
-        }
-    })
-
-    const [logInUser, {data:loginData, error:e2}] = useMutation(LOGIN_USER, {
-        onCompleted: (data) => {
-            localStorage.setItem('jwt', data.logInUser.token)
-            setIsSubmitting(false)
-            setLoggedIn(true)
-        },
-        onError: (error) => {
-            setIsSubmitting(false)
-            setIsErr(true)
-            setIsErrMsg(error.message)
         }
     })
     
@@ -49,23 +36,29 @@ const AuthScreen = ({setLoggedIn}) => {
     const handleSbmit = (e) => {
         e.preventDefault()
         setIsSubmitting(true)
+        
         if(showLogin){
-            logInUser({
-                variables: {
-                    userData: formData
-                }
-            })
+            setIsSubmitting(false)
         } else {
-            //* Create a copy of formData with age as number
+            // Create a copy of formData with age as number
             const userData = {
                 ...formData,
                 age: formData.age ? parseInt(formData.age, 10) : 0
             }
             
+            console.log("Submitting user data:", userData)
+            
             signUpUser({
                 variables: {
                     userNew: userData
                 }
+            })
+            .then(response => {
+                console.log("SignUp response:", response)
+            })
+            .catch(err => {
+                console.error("SignUp catch error:", err)
+                setIsSubmitting(false)
             })
         }
     }
@@ -76,8 +69,8 @@ const AuthScreen = ({setLoggedIn}) => {
                 <Stack direction='column' spacing={2} sx={{width: '400px'}}>
                     {showSuccessMessage && 
                         <Alert severity="success">{successName} is Signed Up successfully!</Alert>}
-                    {isErr && 
-                        <Alert severity="error">{isErrMsg}</Alert>}
+                    {e1 && 
+                        <Alert severity="error">{e1.message}</Alert>}
                     <Typography variant='h5'>{showLogin ? "LogIn" : "SignUp"}</Typography>
                     
                     {isSubmitting ? (
@@ -129,7 +122,6 @@ const AuthScreen = ({setLoggedIn}) => {
                                     setShowLogin(!showLogin)
                                     setFormData({})
                                     setShowSuccessMessage(false)
-                                    setIsErr(false)
                                     authForm.current.reset()
                                 }}
                             >

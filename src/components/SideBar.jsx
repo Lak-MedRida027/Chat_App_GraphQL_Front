@@ -1,30 +1,18 @@
-import React, { use } from 'react'
+import React, { use, useState } from 'react'
 import { Box, Typography, Stack, Divider} from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout';
 import UserCard from './UserCard'
+import { useQuery } from '@apollo/client';
+import { GET_USERS } from '../graphql/queries';
 
-const SideBar = () => {
-  const users = [  {
-    id: 1,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    age: 28,
-    password: "123456",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    age: 34,
-    password: "123456",
-  },
-  {
-    id: 3,
-    name: "Alice Johnson",
-    email: "alice.johnson@example.com",
-    age: 22,
-    password: "123456",
-  }]
+const SideBar = ({ setLoggedIn }) => {
+  const [users, setUsers] = useState([])
+    const {loading, data, error} = useQuery(GET_USERS)
+
+    if(loading) return <Typography variant='h6'>Loading chats</Typography>
+    if(error){
+      console.log(error.message)
+    }
 
   return (
     <Box 
@@ -35,11 +23,14 @@ const SideBar = () => {
     >
       <Stack direction={'row'} justifyContent={'space-between'}>
         <Typography variant='h6'>Chat</Typography>
-        <LogoutIcon  /> 
+        <LogoutIcon className='LogoutIcon' onClick={ ()=>{
+          localStorage.removeItem('jwt')
+          setLoggedIn(false)
+        }} /> 
       </Stack>
       <Divider />
       {
-        users.map(user =>{
+        data.users.map(user =>{
           return <UserCard key={user.id} item={user} />
         })
       }

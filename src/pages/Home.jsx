@@ -16,10 +16,10 @@ const AllRoutes = () =>{
   )
 }
 
-const Home = () => {
+const Home = ({ setLoggedIn }) => {
   return (
     <Box display={'flex'}>
-        <SideBar />
+        <SideBar setLoggedIn={setLoggedIn}/>
         <AllRoutes />
     </Box>
   )
