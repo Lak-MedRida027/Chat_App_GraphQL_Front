@@ -1,4 +1,4 @@
-import React, { use, useState } from 'react'
+import React, { use, useState, useEffect } from 'react'
 import { Box, Typography, Stack, Divider} from '@mui/material'
 import LogoutIcon from '@mui/icons-material/Logout';
 import UserCard from './UserCard'
@@ -9,6 +9,11 @@ const SideBar = ({ setLoggedIn }) => {
   const [users, setUsers] = useState([])
     const {loading, data, error} = useQuery(GET_USERS)
 
+    useEffect(() => {
+      if (data && data.users) {
+        setUsers(data.users);
+      }
+    }, [data]);
     if(loading) return <Typography variant='h6'>Loading chats</Typography>
     if(error){
       console.log(error.message)
@@ -30,7 +35,7 @@ const SideBar = ({ setLoggedIn }) => {
       </Stack>
       <Divider />
       {
-        data.users.map(user =>{
+        users.map(user =>{
           return <UserCard key={user.id} item={user} />
         })
       }

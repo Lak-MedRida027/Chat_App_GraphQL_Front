@@ -3,10 +3,11 @@ import { AppBar, Box, Avatar, Typography, TextField, Stack } from '@mui/material
 import Toolbar from '@mui/material/Toolbar';
 import { useParams } from 'react-router-dom'
 import MessageCard from './MessageCard';
-import { useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery, useSubscription } from '@apollo/client';
 import { GET_MESSAGES } from '../graphql/queries';
 import SendIcon from '@mui/icons-material/Send';
 import { SEND_MESSAGE } from '../graphql/mutations';
+import { MESSAGE_SUB } from '../graphql/subscriptions';
 
 const ChatScreen = () => {
     const [text, setText] = useState('')
@@ -23,10 +24,17 @@ const ChatScreen = () => {
     })
 
     const [sendMessage] = useMutation(SEND_MESSAGE,{
-        onCompleted(data){
+/*         onCompleted(data){
             setMessages( (prevState) => [ ...prevState, data.createMessage])
+        } */
+    })
+
+    const {data:subData} = useSubscription(MESSAGE_SUB,{
+        onSubscriptionData({subscriptionData:{data}}){
+            setMessages( (prevState) => [ ...prevState, data.messageAdded])
         }
     })
+    if(subData) console.log(subData)
 
     if(error){
         console.log(error.message)
