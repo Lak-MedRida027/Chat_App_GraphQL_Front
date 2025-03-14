@@ -20,11 +20,11 @@ const authLink = setContext((_, { headers }) => {
   }
 });
 const httpLink = new HttpLink({
-  uri: 'http://localhost:4000/graphql'
+  uri: 'https://chat-app-graphql-back.onrender.com/graphql'
 });
 
 const wsLink = new GraphQLWsLink(createClient({
-  url: 'ws://localhost:4000/graphql',
+  url: 'wss://chat-app-graphql-back.onrender.com/graphql',
 }));
 
 //* this splite check what we want to do either a subscription(return wsLink) or Query , Mutation(return httpLink)
